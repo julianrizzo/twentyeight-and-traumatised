@@ -12,28 +12,30 @@
   </head>
   <body>
     <main id="stage" class="stage" aria-label="Video experience">
-      <video
-        id="layer-a"
-        class="layer is-front"
-        playsinline
-        webkit-playsinline
-        preload="auto"
-      ></video>
-      <video
-        id="layer-b"
-        class="layer"
-        playsinline
-        webkit-playsinline
-        preload="auto"
-      ></video>
-      <button
-        id="gate"
-        class="gate"
-        type="button"
-        aria-label="Tap to begin"
-      >
-        Tap to begin
-      </button>
+      <div class="frame">
+        <video
+          id="layer-a"
+          class="layer is-front"
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <video
+          id="layer-b"
+          class="layer"
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        ></video>
+        <button
+          id="gate"
+          class="gate"
+          type="button"
+          aria-label="Tap to begin"
+        >
+          Tap to begin
+        </button>
+      </div>
     </main>
     <script src="app.js"></script>
   </body>
