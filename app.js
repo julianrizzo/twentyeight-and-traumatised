@@ -15,8 +15,115 @@
 
   const gate = document.getElementById("gate");
   const stage = document.getElementById("stage");
+  const fx = document.getElementById("fx");
   const layerA = document.getElementById("layer-a");
   const layerB = document.getElementById("layer-b");
+
+  /** @type {AudioContext | null} */
+  let audioCtx = null;
+
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AC();
+    }
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  /** Short wooden knock via Web Audio (no extra asset). */
+  function playKnockSound() {
+    const ctx = getAudioContext();
+    const t = ctx.currentTime;
+
+    const thump = ctx.createOscillator();
+    thump.type = "sine";
+    thump.frequency.setValueAtTime(140, t);
+    thump.frequency.exponentialRampToValueAtTime(55, t + 0.09);
+
+    const thumpGain = ctx.createGain();
+    thumpGain.gain.setValueAtTime(0.0001, t);
+    thumpGain.gain.exponentialRampToValueAtTime(0.9, t + 0.008);
+    thumpGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+
+    thump.connect(thumpGain);
+    thumpGain.connect(ctx.destination);
+    thump.start(t);
+    thump.stop(t + 0.16);
+
+    const click = ctx.createOscillator();
+    click.type = "triangle";
+    click.frequency.setValueAtTime(420, t);
+    click.frequency.exponentialRampToValueAtTime(120, t + 0.04);
+
+    const clickGain = ctx.createGain();
+    clickGain.gain.setValueAtTime(0.0001, t);
+    clickGain.gain.exponentialRampToValueAtTime(0.35, t + 0.004);
+    clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+
+    click.connect(clickGain);
+    clickGain.connect(ctx.destination);
+    click.start(t);
+    click.stop(t + 0.07);
+
+    const noiseDuration = 0.05;
+    const bufferSize = Math.floor(ctx.sampleRate * noiseDuration);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i += 1) {
+      data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = "bandpass";
+    noiseFilter.frequency.value = 800;
+    noiseFilter.Q.value = 0.8;
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.25, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + noiseDuration);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(ctx.destination);
+    noise.start(t);
+  }
+
+  /**
+   * Little radial lines around the tap point.
+   * @param {number} clientX
+   * @param {number} clientY
+   */
+  function spawnKnockVisual(clientX, clientY) {
+    const rect = stage.getBoundingClientRect();
+    const knock = document.createElement("div");
+    knock.className = "knock";
+    knock.style.left = `${clientX - rect.left}px`;
+    knock.style.top = `${clientY - rect.top}px`;
+
+    const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+    for (let i = 0; i < angles.length; i += 1) {
+      const line = document.createElement("span");
+      line.className = "knock__line";
+      line.style.setProperty("--a", `${angles[i]}deg`);
+      line.style.setProperty("--from", "-10px");
+      line.style.setProperty("--to", "-26px");
+      line.style.setProperty("--delay", `${i % 2 === 0 ? 0 : 20}ms`);
+      knock.appendChild(line);
+    }
+
+    fx.appendChild(knock);
+    window.setTimeout(() => knock.remove(), 450);
+  }
+
+  /**
+   * @param {PointerEvent} event
+   */
+  function triggerKnock(event) {
+    spawnKnockVisual(event.clientX, event.clientY);
+    playKnockSound();
+  }
 
   /** @returns {HTMLVideoElement} */
   function frontLayer() {
@@ -147,6 +254,7 @@
     if (state !== "gate") return;
     state = "playing1";
     gate.hidden = true;
+    getAudioContext();
 
     preloadUpcoming();
 
@@ -201,6 +309,7 @@
     }
 
     if (state === "awaitingTaps") {
+      triggerKnock(event);
       tapCount += 1;
       if (tapCount >= TAPS_REQUIRED) {
         goToVideo2();

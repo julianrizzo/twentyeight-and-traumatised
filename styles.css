@@ -75,3 +75,45 @@ body {
 .gate[hidden] {
   display: none;
 }
+
+.fx {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.knock {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.knock__line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.5px;
+  height: 16px;
+  margin: -8px 0 0 -1.25px;
+  border-radius: 1px;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.55);
+  transform: rotate(var(--a)) translateY(var(--from));
+  animation: knock-burst 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+  opacity: 0;
+}
+
+@keyframes knock-burst {
+  0% {
+    opacity: 0.95;
+    transform: rotate(var(--a)) translateY(var(--from)) scaleY(0.55);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(var(--to)) scaleY(1);
+  }
+}
