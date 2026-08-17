@@ -1,8 +1,8 @@
 (() => {
   const VIDEOS = {
-    1: "videos/video1.mp4",
-    2: "videos/video2.mp4",
-    3: "videos/video3.mp4",
+    1: "videos/start_loop-300fr.mp4",
+    2: "videos/fly_through-300fr.mp4",
+    3: "videos/end_loop-300fr.mp4",
   };
 
   const TAPS_REQUIRED = 3;
