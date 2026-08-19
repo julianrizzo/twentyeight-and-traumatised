@@ -7,7 +7,7 @@
 
   const TAPS_REQUIRED = 3;
 
-  /** @type {'gate' | 'playing1' | 'awaitingTaps' | 'playing2' | 'looping3'} */
+  /** @type {'gate' | 'playing1' | 'playing2' | 'looping3'} */
   let state = "gate";
   let tapCount = 0;
   let frontIsA = true;
@@ -260,15 +260,11 @@
 
     const front = frontLayer();
     await loadSource(front, VIDEOS[1]);
-    front.loop = false;
+    front.loop = true;
     front.currentTime = 0;
     front.classList.add("is-front");
-
-    front.onended = () => {
-      front.pause();
-      state = "awaitingTaps";
-      tapCount = 0;
-    };
+    front.onended = null;
+    tapCount = 0;
 
     try {
       const playPromise = front.play();
@@ -281,7 +277,7 @@
   }
 
   async function goToVideo2() {
-    if (state !== "awaitingTaps") return;
+    if (state !== "playing1") return;
     state = "playing2";
 
     await showNext(VIDEOS[2], {
@@ -308,7 +304,7 @@
       return;
     }
 
-    if (state === "awaitingTaps") {
+    if (state === "playing1") {
       triggerKnock(event);
       tapCount += 1;
       if (tapCount >= TAPS_REQUIRED) {

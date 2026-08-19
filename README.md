@@ -2,8 +2,8 @@
 
 Static full-screen site with three sequential videos:
 
-1. Tap to begin (unlocks audio), then **video 1** plays once and freezes on the last frame.
-2. Tap the screen **three times** to start **video 2** (plays once).
+1. Tap to begin (unlocks audio), then **video 1** loops.
+2. Tap the screen **three times** at any point during video 1 to start **video 2** (plays once).
 3. When video 2 ends, **video 3** takes over and loops forever.
 
 Transitions use two stacked `<video>` layers so the previous last frame stays visible until the next clip is actually playing — no black flash between videos.
